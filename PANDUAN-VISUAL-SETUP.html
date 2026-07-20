@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panduan Setup Supabase — SAYGROUP Talent Assessment</title>
+<style>
+  :root {
+    --ink:#1B2559; --bg:#F6F4EF; --border:#E4E1D8; --muted:#8B8578; --text3:#57534E;
+    --sb-panel-page: #ffffff;
+    --sb-dark:#171717; --sb-dark2:#1f1f1f; --sb-green:#3ecf8e; --sb-green-dark:#249d68;
+    --sb-text-dim:#a0a0a0; --sb-border:#2a2a2a;
+    --danger:#B3261E; --danger-bg:#FDECEA;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; background:var(--bg); color:#262321; }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 48px 24px 100px 24px; }
+  header.top { text-align:center; margin-bottom: 48px; }
+  header.top .eyebrow { font-size:11px; font-weight:700; letter-spacing:2px; color:var(--sb-green-dark); text-transform:uppercase; margin-bottom:10px; }
+  header.top h1 { font-family: Georgia, serif; font-size:32px; color:var(--ink); margin:0 0 12px 0; }
+  header.top p { color:var(--text3); font-size:14px; line-height:1.6; max-width:520px; margin:0 auto; }
+
+  .roadmap { display:flex; justify-content:center; gap:6px; margin: 28px 0 8px 0; flex-wrap:wrap; }
+  .roadmap span { font-size:10px; font-weight:700; padding:5px 10px; border-radius:9999px; background:#fff; border:1px solid var(--border); color:var(--muted); }
+
+  .step { position:relative; margin: 56px 0; }
+  .step-head { display:flex; align-items:baseline; gap:14px; margin-bottom:16px; }
+  .step-num { font-family: Georgia, serif; font-size:34px; font-weight:bold; color: var(--sb-green-dark); flex-shrink:0; min-width:46px; }
+  .step-title { font-size:19px; font-weight:700; color:var(--ink); }
+  .step-desc { font-size:13.5px; color:var(--text3); line-height:1.6; margin: 0 0 18px 62px; }
+  .step-body { margin-left: 62px; }
+
+  /* ---------- Browser / dashboard mockup ---------- */
+  .browser { border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(27,37,89,0.16); border:1px solid var(--border); background:#fff; }
+  .browser-bar { background:#EDEBE4; padding:9px 14px; display:flex; align-items:center; gap:8px; }
+  .browser-bar .dot { width:9px; height:9px; border-radius:50%; }
+  .browser-bar .url { flex:1; background:#fff; border-radius:6px; padding:5px 12px; font-size:11px; color:#8B8578; margin-left:8px; font-family: 'Courier New', monospace; }
+
+  .dash { display:flex; min-height: 300px; background:#fff; }
+  .sidebar { width:180px; background:var(--sb-dark); flex-shrink:0; padding:14px 0; }
+  .sidebar .brand { display:flex; align-items:center; gap:8px; padding: 0 16px 16px 16px; border-bottom:1px solid var(--sb-border); margin-bottom:10px;}
+  .sidebar .brand .logo { width:20px;height:20px;border-radius:5px;background:var(--sb-green); }
+  .sidebar .brand span { color:#fff; font-size:12px; font-weight:700; }
+  .sb-item { display:flex; align-items:center; gap:10px; padding:9px 16px; font-size:12.5px; color:var(--sb-text-dim); position:relative; }
+  .sb-item .ic { width:15px; height:15px; border-radius:4px; background:#3a3a3a; flex-shrink:0; }
+  .sb-item.active { color:#fff; background:#242424; }
+  .sb-item.highlight { color:#fff; background: rgba(62,207,142,0.14); box-shadow: inset 3px 0 0 var(--sb-green); }
+  .sb-item.highlight .ic { background: var(--sb-green); }
+
+  .main { flex:1; padding:20px 22px; position:relative; background:#FAFAF9; }
+  .main-topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .main-title { font-size:13px; font-weight:700; color:var(--ink); }
+  .btn-mock { font-size:11px; font-weight:700; padding:7px 13px; border-radius:7px; }
+  .btn-mock.green { background:var(--sb-green); color:#06331f; }
+  .btn-mock.outline { border:1px solid #D8D5CC; color:#57534E; background:#fff; }
+
+  .editor-mock { background:#1e1e1e; border-radius:8px; padding:14px; font-family:'Courier New',monospace; font-size:10.5px; color:#c9c9c9; line-height:1.7; min-height:120px; white-space:pre-wrap; }
+  .editor-mock .kw { color:#c586c0; } .editor-mock .str { color:#ce9178; } .editor-mock .com { color:#6a9955; }
+
+  .table-mock { border:1px solid var(--border); border-radius:8px; overflow:hidden; font-size:11px; }
+  .table-mock .tr { display:flex; border-top:1px solid var(--border); }
+  .table-mock .tr:first-child { border-top:none; background:#F5F4EF; font-weight:700; color:#57534E; }
+  .table-mock .td { padding:8px 10px; flex:1; }
+
+  .field-mock { border:1px solid #D8D5CC; border-radius:7px; padding:8px 12px; font-size:11px; color:#57534E; background:#fff; margin-bottom:8px; }
+  .field-mock .lbl { display:block; font-size:9.5px; font-weight:700; color:#8B8578; margin-bottom:3px; }
+
+  /* Callout: pointer + bubble */
+  .callout { position:absolute; z-index:5; display:flex; align-items:center; gap:8px; animation: pulse 1.8s ease-in-out infinite; }
+  .callout .bubble { background:var(--danger); color:#fff; font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:8px; white-space:nowrap; box-shadow:0 4px 10px rgba(179,38,30,.35); }
+  .callout .arrow { width:0; height:0; }
+  @keyframes pulse { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+  .ring { position:absolute; border:2.5px solid var(--danger); border-radius:8px; pointer-events:none; box-shadow: 0 0 0 3px rgba(179,38,30,0.12); }
+
+  pre.code { background:#1e1e1e; color:#d4d4d4; border-radius:10px; padding:16px 18px; font-size:12px; overflow-x:auto; line-height:1.6; margin: 10px 0; }
+  pre.code .com { color:#6a9955; }
+  .note { background:#EEF0F8; border:1px solid #D7DBF0; color:var(--ink); font-size:12.5px; padding:10px 14px; border-radius:10px; margin-top:10px; line-height:1.55; }
+  .warn { background:var(--danger-bg); border:1px solid #F3D2CE; color:var(--danger); font-size:12.5px; padding:10px 14px; border-radius:10px; margin-top:10px; line-height:1.55; }
+
+  .divider { height:1px; background:var(--border); margin:56px 0; }
+
+  .trouble { background:#fff; border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:14px; }
+  .trouble .err { font-family:'Courier New',monospace; font-size:12px; color:var(--danger); background:var(--danger-bg); display:inline-block; padding:4px 10px; border-radius:6px; margin-bottom:8px; }
+  .trouble .fix { font-size:13px; color:var(--text3); line-height:1.6; }
+
+  footer.end { text-align:center; margin-top:60px; font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">Panduan Visual</div>
+    <h1>Setup Supabase dari Nol</h1>
+    <p>Ikuti urutan ini persis. Setiap langkah menunjukkan tepat di mana harus klik —
+    tidak perlu menebak-nebak menu mana yang dimaksud.</p>
+    <div class="roadmap">
+      <span>1. Buat Project</span><span>2. SQL Editor</span><span>3. Jalankan schema.sql</span>
+      <span>4. Jalankan seed</span><span>5. Buat Admin</span><span>6. Ambil API Key</span><span>7. config.js</span>
+    </div>
+  </header>
+
+  <!-- ================= STEP 1 ================= -->
+  <div class="step">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Buat akun & project baru</div></div>
+    <p class="step-desc">Buka <b>supabase.com</b> → Sign up (bisa pakai akun GitHub) → tombol <b>New project</b>.
+    Isi nama project bebas (mis. "saygroup-assessment"), buat password database (simpan baik-baik), pilih region terdekat (mis. Singapore), lalu klik <b>Create new project</b>.</p>
+    <div class="step-body">
+      <div class="browser">
+        <div class="browser-bar"><div class="dot" style="background:#FF5F57"></div><div class="dot" style="background:#FEBC2E"></div><div class="dot" style="background:#28C840"></div><div class="url">supabase.com/dashboard/new/project</div></div>
+        <div style="padding:28px 32px;background:#fff;">
+          <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:16px;">New project</div>
+          <div class="field-mock"><span class="lbl">Name</span>saygroup-assessment</div>
+          <div class="field-mock"><span class="lbl">Database Password</span>••••••••••••</div>
+          <div class="field-mock"><span class="lbl">Region</span>Southeast Asia (Singapore)</div>
+          <div style="position:relative;display:inline-block;margin-top:6px;">
+            <div class="btn-mock green" style="padding:9px 18px;">Create new project</div>
+            <div class="ring" style="top:-6px;left:-6px;right:-6px;bottom:-6px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">⏳ Tunggu 1–2 menit sampai muncul tulisan "Project is ready" — jangan tutup tab selama proses ini.</div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 2 ================= -->
+  <div class="step">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Buka menu "SQL Editor" di sidebar kiri</div></div>
+    <p class="step-desc">Ini yang sering terlewat: menunya ada di <b>sidebar paling kiri</b> project (ikon-ikon vertikal), bukan di menu atas. Cari ikon yang mirip <b>&lt;/&gt;</b> bertuliskan <b>SQL Editor</b>, biasanya urutan ke-3 dari atas.</p>
+    <div class="step-body">
+      <div class="browser">
+        <div class="browser-bar"><div class="dot" style="background:#FF5F57"></div><div class="dot" style="background:#FEBC2E"></div><div class="dot" style="background:#28C840"></div><div class="url">supabase.com/dashboard/project/xxxxxxx</div></div>
+        <div class="dash">
+          <div class="sidebar">
+            <div class="brand"><div class="logo"></div><span>saygroup-assessment</span></div>
+            <div class="sb-item"><div class="ic"></div>Table Editor</div>
+            <div class="sb-item highlight" style="position:relative;"><div class="ic"></div>SQL Editor
+              <div class="ring" style="top:1px;left:1px;right:1px;bottom:1px;border-radius:6px;"></div>
+            </div>
+            <div class="sb-item"><div class="ic"></div>Database</div>
+            <div class="sb-item"><div class="ic"></div>Authentication</div>
+            <div class="sb-item"><div class="ic"></div>Storage</div>
+            <div class="sb-item"><div class="ic"></div>Edge Functions</div>
+            <div class="sb-item"><div class="ic"></div>Settings</div>
+          </div>
+          <div class="main">
+            <div class="callout" style="top:8px;left:20px;">
+              <div class="bubble">← Klik menu ini</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="warn">Kalau sidebar tidak kelihatan (layar sempit / mobile), cari ikon <b>☰ (garis tiga)</b> di pojok kiri atas untuk membukanya dulu.</div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 3 ================= -->
+  <div class="step">
+    <div class="step-head"><div class="step-num">3</div><div class="step-title">Klik "New query", tempel isi schema.sql, lalu Run</div></div>
+    <p class="step-desc">Di halaman SQL Editor, klik tombol <b>+ New query</b> di kiri atas. Buka file <code>supabase/schema.sql</code> dari proyek yang saya kirim, salin <b>seluruh isinya</b>, tempel ke kotak editor, lalu klik tombol hijau <b>Run</b> (atau tekan <kbd>Ctrl/Cmd + Enter</kbd>).</p>
+    <div class="step-body">
+      <div class="browser">
+        <div class="browser-bar"><div class="dot" style="background:#FF5F57"></div><div class="dot" style="background:#FEBC2E"></div><div class="dot" style="background:#28C840"></div><div class="url">.../sql/new</div></div>
+        <div class="dash">
+          <div class="sidebar">
+            <div class="brand"><div class="logo"></div><span>saygroup-assessment</span></div>
+            <div class="sb-item"><div class="ic"></div>Table Editor</div>
+            <div class="sb-item active"><div class="ic"></div>SQL Editor</div>
+            <div class="sb-item"><div class="ic"></div>Database</div>
+            <div class="sb-item"><div class="ic"></div>Authentication</div>
+          </div>
+          <div class="main">
+            <div class="main-topbar">
+              <div class="main-title">SQL Editor</div>
+              <div style="position:relative;">
+                <div class="btn-mock outline">+ New query</div>
+              </div>
+            </div>
+            <div class="editor-mock"><span class="com">-- SAYGROUP Talent Assessment — Supabase schema</span>
+<span class="kw">create table</span> <span class="str">public.admins</span> (
+  user_id uuid <span class="kw">primary key</span> references auth.users(id),
+  ...
+);</div>
+            <div style="margin-top:12px;position:relative;display:inline-block;">
+              <div class="btn-mock green">▶ Run</div>
+              <div class="ring" style="top:-6px;left:-6px;right:-6px;bottom:-6px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note">✅ Kalau berhasil, muncul kotak hijau kecil bertuliskan <b>"Success. No rows returned"</b> di bagian bawah editor.</div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 4 ================= -->
+  <div class="step">
+    <div class="step-head"><div class="step-num">4</div><div class="step-title">Ulangi untuk seed-questions.sql</div></div>
+    <p class="step-desc">Klik <b>+ New query</b> lagi (jangan ditumpuk di query yang sama). Salin seluruh isi <code>supabase/seed-questions.sql</code>, tempel, klik <b>Run</b>. Ini akan mengisi 60 soal starter ke tabel <code>questions</code>.</p>
+    <div class="step-body">
+      <div class="note">Aman dijalankan berkali-kali — query ini pakai <code>on conflict ... do update</code>, jadi tidak akan membuat soal dobel.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ================= STEP 5 ================= -->
+  <div class="step">
+    <div class="step-head"><div class="step-num">5</div><div class="step-title">Buat akun admin (HR) lewat Authentication</div></div>
+    <p class="step-desc">Di sidebar kiri, klik <b>Authentication</b> → tab <b>Users</b> → tombol <b>Add user</b> → pilih <b>Create new user</b>. Isi email & password untuk login dashboard HR nanti.</p>
+    <div class="step-body">
+      <div class="browser">
+        <div class="browser-bar"><div class="dot" style="background:#FF5F57"></div><div class="dot" style="background:#FEBC2E"></div><div class="dot" style="background:#28C840"></div><div class="url">.../auth/users</div></div>
+        <div class="dash">
+          <div class="sidebar">
+            <div class="brand"><div class="logo"></div><span>saygroup-assessment</span></div>
+            <div class="sb-item"><div class="ic"></div>Table Editor</div>
+            <div class="sb-item"><div class="ic"></div>SQL Editor</div>
+            <div class="sb-item"><div class="ic"></div>Database</div>
+            <div class="sb-item highlight" style="position:relative;"><div class="ic"></div>Authentication
+              <div class="ring" style="top:1px;left:1px;right:1px;bottom:1px;border-radius:6px;"></div>
+            </div>
+          </div>
+          <div class="main">
+            <div class="main-topbar">
+              <div class="main-title">Users</div>
+              <div style="position:relative;">
+                <div class="btn-mock green">+ Add user ▾</div>
+                <div class="ring" style="top:-6px;left:-6px;right:-6px;bottom:-6px;"></div>
+              </div>
+            </div>
+            <div class="table-mock">
+              <div class="tr"><div class="td">Email</div><div class="td">Provider</div><div class="td">Created</div></div>
+              <div class="tr" style="color:#C7C3B8;"><div class="td">(belum ada user)</div><div class="td">—</div><div class="td">—</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 6 ================= -->
+  <div class="step">
+    <div class="step-head"><div class="step-num">6</div><div class="step-title">Jadikan user itu admin</div></div>
+    <p class="step-desc">Balik lagi ke <b>SQL Editor</b> → New query → jalankan perintah ini (ganti email sesuai user yang baru dibuat):</p>
+    <div class="step-body">
+<pre class="code"><span class="com">-- ganti email di bawah sesuai akun admin yang baru dibuat</span>
+insert into public.admins (user_id, email)
+select id, email from auth.users where email = 'hr@perusahaan-anda.com';</pre>
+      <div class="note">Kalau berhasil akan muncul <b>"Success. 1 row returned"</b> atau serupa. User ini sekarang bisa login lewat halaman "Login Admin" di aplikasi.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ================= STEP 7 ================= -->
+  <div class="step">
+    <div class="step-head"><div class="step-num">7</div><div class="step-title">Ambil Project URL & anon key</div></div>
+    <p class="step-desc">Sidebar kiri → <b>Project Settings</b> (ikon gerigi, biasanya paling bawah) → <b>API</b>. Salin nilai <b>Project URL</b> dan <b>anon public</b> key.</p>
+    <div class="step-body">
+      <div class="browser">
+        <div class="browser-bar"><div class="dot" style="background:#FF5F57"></div><div class="dot" style="background:#FEBC2E"></div><div class="dot" style="background:#28C840"></div><div class="url">.../settings/api</div></div>
+        <div style="padding:22px 26px;background:#fff;">
+          <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px;">Project API keys</div>
+          <div class="field-mock"><span class="lbl">Project URL</span>https://abcxyzproject.supabase.co</div>
+          <div class="field-mock" style="position:relative;"><span class="lbl">anon public</span>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            <div class="ring" style="top:-4px;left:-4px;right:-4px;bottom:-4px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 8 ================= -->
+  <div class="step">
+    <div class="step-head"><div class="step-num">8</div><div class="step-title">Tempelkan ke js/config.js</div></div>
+    <p class="step-desc">Buka file <code>js/config.js</code> di proyekmu, ganti dua baris ini dengan nilai dari Step 7:</p>
+    <div class="step-body">
+<pre class="code"><span class="com">// js/config.js</span>
+<span class="kw">const</span> SUPABASE_URL = <span class="str">"https://abcxyzproject.supabase.co"</span>;
+<span class="kw">const</span> SUPABASE_ANON_KEY = <span class="str">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>;</pre>
+      <div class="note">Simpan, lalu buka <code>index.html</code> lewat local server (mis. <code>npx serve .</code>) atau setelah di-push ke GitHub Pages — halaman "Mulai Tes" sudah bisa memuat 60 soal dari Supabase.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h2 style="font-family:Georgia,serif;color:var(--ink);font-size:20px;">Kalau masih error — cek di sini</h2>
+
+  <div class="trouble">
+    <div class="err">permission denied for table questions</div>
+    <div class="fix">Berarti <code>schema.sql</code> belum sepenuhnya berhasil dijalankan (bagian Row Level Security-nya). Jalankan ulang seluruh isi <code>schema.sql</code> dari awal sampai akhir dalam satu query, jangan sepotong-sepotong.</div>
+  </div>
+  <div class="trouble">
+    <div class="err">relation "public.questions" does not exist</div>
+    <div class="fix"><code>seed-questions.sql</code> dijalankan sebelum <code>schema.sql</code>. Jalankan <code>schema.sql</code> dulu sampai sukses, baru <code>seed-questions.sql</code>.</div>
+  </div>
+  <div class="trouble">
+    <div class="err">syntax error at or near "..."</div>
+    <div class="fix">Biasanya karena hanya sebagian isi file yang ke-copy. Buka file aslinya, tekan <kbd>Ctrl/Cmd+A</kbd> lalu <kbd>Ctrl/Cmd+C</kbd> untuk pastikan semua baris tersalin, lalu tempel ulang (isi editor lama dihapus dulu).</div>
+  </div>
+  <div class="trouble">
+    <div class="err">Akun ini belum terdaftar sebagai admin</div>
+    <div class="fix">Muncul saat login di aplikasi. Artinya Step 6 (insert ke tabel <code>admins</code>) belum dijalankan, atau email yang dipakai beda dengan email user di Step 5. Cek dengan: <code>select * from public.admins;</code> di SQL Editor.</div>
+  </div>
+  <div class="trouble">
+    <div class="err">Gagal memuat soal. Cek koneksi atau konfigurasi Supabase.</div>
+    <div class="fix">Muncul di halaman tes. Biasanya <code>js/config.js</code> belum diisi / salah salin URL atau anon key. Bandingkan lagi persis dengan Step 7–8, tanpa spasi atau tanda kutip yang terpotong.</div>
+  </div>
+
+  <footer class="end">SAYGROUP Talent Assessment — Panduan Setup Supabase</footer>
+</div>
+</body>
+</html>
